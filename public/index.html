@@ -46,14 +46,12 @@
         const loadProducts = (page) => {
             document.getElementById('status').innerText = 'Loading products...';
 
-            fetch(`http://localhost:5000/api/products?page=${page}&limit=${limit}`)
+            fetch(`http://localhost:8000/api/products?page=${page}&limit=${limit}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Display products in the UI
                     document.getElementById('status').innerText = `Loaded ${data.products.length} products`;
                     document.getElementById('products').innerText = JSON.stringify(data.products, null, 2);
 
-                    // Update pagination buttons
                     document.getElementById('prev').disabled = data.currentPage === 1;
                     document.getElementById('next').disabled = data.currentPage === data.totalPages;
 
@@ -64,10 +62,8 @@
                 });
         };
 
-        // Load the first page of products initially
         loadProducts(currentPage);
 
-        // Event listener for pagination
         document.getElementById('prev').addEventListener('click', () => {
             if (currentPage > 1) {
                 loadProducts(currentPage - 1);

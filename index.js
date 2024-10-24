@@ -1,9 +1,15 @@
+import app from "./app.js";
+import dotenv from "dotenv";
+import connectDB from "./src/db/index.js";
 
-import app from './app.js';  
+dotenv.config({ path: "./.env" });
 
-const PORT = 5000;
-
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Server failed to start");
+  });

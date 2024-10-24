@@ -1,36 +1,28 @@
-const generateProducts = () => {
-  let products = [];
-  for (let i = 1; i <= 100000; i++) {
-    products.push({
-      id: i,
-      name: `Product ${i}`,
-      price: (Math.random() * 100).toFixed(2),
-      description: `Description for Product ${i}`,
-      imageUrl: `https://example.com/product${i}.jpg`,
-    });
-  }
-  return products;
-};
+import Product from '../models/product.model.js';
 
-// Controller to handle paginated product requests
-const getPaginatedProducts = (req, res) => {
+const getPaginatedProducts = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
+  const pageInt = parseInt(page);
+  const limitInt = parseInt(limit);
 
-  const products = generateProducts();
+  try {
+    const products = await Product.find()
+      .limit(limitInt)
+      .skip((pageInt - 1) * limitInt);
+    
+    const totalProducts = await Product.countDocuments();
 
-  // Pagination logic
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-
-  const paginatedProducts = products.slice(startIndex, endIndex);
-
-  // Send paginated data and metadata
-  return res.json({
-    currentPage: parseInt(page),
-    totalPages: Math.ceil(products.length / limit),
-    totalProducts: products.length,
-    limit: parseInt(limit),
-    products: paginatedProducts,
-  });
+    return res.json({
+      currentPage: pageInt,
+      totalPages: Math.ceil(totalProducts / limitInt),
+      totalProducts,
+      limit: limitInt,
+      products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
+
 export default getPaginatedProducts;
